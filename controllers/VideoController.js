@@ -6,7 +6,7 @@ const deepgramApiKey =  '550490491ccdbcb299b6dbd62877203758ffc492'
 const deepgram = new Deepgram(deepgramApiKey);
 
 
-const videoDirectory = path.join(__dirname, '../../uploads/');
+const videoDirectory = path.join(__dirname, '../../VideoUpload/');
 
 exports.getVideo = (req, res, next) => {
     const filename = req.params.filename;
@@ -31,7 +31,7 @@ exports.uploadVideo = async (req, res, next) => {
     try {
         if (req.file) {
             // If there is a file in the request, it's a standard upload
-            const videoPath = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+            const videoPath = `${req.protocol}://${req.get('host')}/VideoUpload/${req.file.filename}`;
             return res.status(200).json({ success: true, link: videoPath });
         }
 
@@ -46,24 +46,24 @@ exports.uploadVideo = async (req, res, next) => {
                     }
 
                     // After adding, proceed to finalize by renaming
-                    fs.rename('tempVideo.mp4', `uploads/${req.file.filename}`, (err) => {
+                    fs.rename('tempVideo.mp4', `VideoUpload/${req.file.filename}`, (err) => {
                         if (err) {
                             console.error('Error finalizing video upload:', err);
                             return res.status(500).json({ error: 'Error finalizing video upload' });
                         } else {
-                            const videoPath = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+                            const videoPath = `${req.protocol}://${req.get('host')}/VideoUpload/${req.file.filename}`;
                             return res.status(200).json({ success: true, link: videoPath });
                         }
                     });
                 });
             } else {
                 // in the event of no chunk left
-                fs.rename('tempVideo.mp4', `uploads/${req.file.filename}`, (err) => {
+                fs.rename('tempVideo.mp4', `VideoUpload/${req.file.filename}`, (err) => {
                     if (err) {
                         console.error('Error finalizing video upload:', err);
                         return res.status(500).json({ error: 'Error finalizing video upload' });
                     } else {
-                        const videoPath = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+                        const videoPath = `${req.protocol}://${req.get('host')}/VideoUpload/${req.file.filename}`;
                         return res.status(200).json({ success: true, link: videoPath });
                     }
                 });
@@ -107,7 +107,7 @@ exports.transcribeAudio = async function(file, mimeType) {
       smart_format: true,
       model: 'nova',
     });
-    
+
     return response;
   } catch (error) {
     throw error;
