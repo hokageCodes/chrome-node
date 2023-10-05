@@ -1,5 +1,5 @@
 const express = require('express');
-const videoRoutes = require('./routes/videoRoute')
+const videoRoutes = require('./routes/VideoRoute')
 const {notFound, errorHandler} = require('./middleware/errorHandler')
 const app = express();
 
