@@ -17,7 +17,7 @@ app.use('/VideoUpload/videos', express.static('VideoUpload/videos'));
 app.use(videoRoutes);
 app.get('/', (req, res) => {
   res.json({
-    message: 'Welcome to the api ',
+    message: 'And now, the world shall know Pein! Shinra Tensei!!',
     usage: {
       1:'access "/api/videos" to get all videos.',
       2: '"api/upload" to upload a new video', 
