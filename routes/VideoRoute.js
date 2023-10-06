@@ -3,7 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-const { getVideo, uploadVideo, transcribeAudio } = require('../controllers/videoController')
+const { getVideo, uploadVideo, transcribeAudio } = require('../controllers/VideoController')
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
