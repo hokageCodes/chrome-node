@@ -1,6 +1,6 @@
 const express = require('express');
-const videoRoutes = require('./routes/VideoRoute')
-const {notFound, errorHandler} = require('./middleware/errorHandler')
+const videoRoutes = require('./src/routes/videoRoute')
+const {notFound, errorHandler} = require('./src/middleware/errorhandler')
 const app = express();
 
 app.use((req, res, next) => {
@@ -12,16 +12,16 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 // Serve uploaded video files
-app.use('/VideoUpload/videos', express.static('VideoUpload/videos'));
+app.use('/uploads/videos', express.static('uploads/videos'));
 
 app.use(videoRoutes);
 app.get('/', (req, res) => {
   res.json({
-    message: 'And now, the world shall know Pein! Shinra Tensei!!',
+    message: 'Welcome to the api ',
     usage: {
       1:'access "/api/videos" to get all videos.',
       2: '"api/upload" to upload a new video', 
-      3: '"/api/video/randomvideo.mp4" to get a video'
+      3: '"/api/video/examplevideourl.mp4" to get a video'
     }
   })
 })
