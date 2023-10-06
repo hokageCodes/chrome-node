@@ -3,11 +3,11 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-const { getVideo, uploadVideo, transcribeAudio } = require('../controllers/VideoController')
+const { getVideo, uploadVideo, transcribeAudio } = require('../controllers/videoController')
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'VideoUpload/');
+        cb(null, 'uploads/');
     },
     filename: (req, file, cb) => {
         const ext = path.extname(file.originalname)
@@ -27,12 +27,13 @@ const upload = multer({ storage, fileFilter});
 
 const router = express.Router();
 
-// Videos are stored in this folder
-const videoDirectory = 'VideoUpload/'; 
+// Directory where your uploaded videos are stored
+const videoDirectory = 'uploads/'; 
 
-// All videos
+// Route to get a list of all video files
 router.get('/api/videos', (req, res) => {
     try {
+        // Read the contents of the video directory
         fs.readdir(videoDirectory, (err, files) => {
             if (err) {
                 console.error('Error reading video directory:', err);
@@ -45,8 +46,9 @@ router.get('/api/videos', (req, res) => {
                 return ['.mp4', '.avi', '.mkv'].includes(fileExtension); 
             });
 
+            // Construct an array of video URLs
             const videoUrls = videoFiles.map((file) => {
-                return `${req.protocol}://${req.get('host')}/VideoUpload/videos/${file}`;
+                return `${req.protocol}://${req.get('host')}/uploads/videos/${file}`;
             });
 
             return res.status(200).json({ success: true, videos: videoUrls });
