@@ -3,7 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-const { getVideo, uploadVideo, transcribeAudio } = require('../controllers/VideoController')
+const { getVideo, uploadVideo, transcribeAudio } = require('../controllers/videoController')
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -59,7 +59,7 @@ router.get('/api/videos', (req, res) => {
     }
 });
 
-router.get('/api/video/:examplevideourl.mp4', getVideo);
+router.get('/api/video/:filename', getVideo);
 
 router.post('/api/upload',upload.single('video'), uploadVideo);
 

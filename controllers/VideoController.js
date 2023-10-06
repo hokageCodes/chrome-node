@@ -1,46 +1,38 @@
 const path = require('path');
 const fs = require('fs');
-const { Deepgram } = require("@deepgram/sdk");
+const { Deepgram } = require('@deepgram/sdk');
 
-const deepgramApiKey =  'bb7c5f6ce3ca8373e6099ffbdc4798a7cb0d9827'
+const deepgramApiKey = 'bb7c5f6ce3ca8373e6099ffbdc4798a7cb0d9827';
 const deepgram = new Deepgram(deepgramApiKey);
 
-
-const videoDirectory = path.join(__dirname, '../../uploads/');
+const videoDirectory = path.join(__dirname, '../uploads');
 
 exports.getVideo = (req, res, next) => {
-    const filename = req.params.filename;
-    const videoPath = path.join(videoDirectory, filename);
-    console.log(videoDirectory);
-     if (fs.existsSync(videoPath)) {
-        // Use the 'video/mp4' MIME type for video files (adjust as needed)
-        res.setHeader('Content-Type', 'video/mp4');
-        //res.status(200).json({ success: true, video: videoPath})
-        // Stream the video file to the response
-        const videoStream = fs.createReadStream(videoPath);
-        videoStream.pipe(res);
-    } else {
-        // Return a 404 error if the video file does not exist
-        res.status(404).json({error: 'Video not found'});
+    try {
+        const filename = req.params.filename;
+        const videoPath = path.join(videoDirectory, filename + '.mp4');
+        console.log(videoPath)
+        if (fs.existsSync(videoPath)) {
+            res.setHeader('Content-Type', 'video/mp4');
+            const videoStream = fs.createReadStream(videoPath);
+            videoStream.pipe(res);
+        } else {
+            res.status(404).json({ error: 'Video not found' });
+        }
+    } catch (error) {
+        console.log(error)
     }
-
 };
 
 exports.uploadVideo = async (req, res, next) => {
     try {
         if (req.file) {
-            // If there is a file in the request, it's a standard upload
             const videoPath = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
             return res.status(200).json({ success: true, link: videoPath });
         }
 
-        // If there's no file, it's a chunked upload
-
-        // Check if it's a chunk upload or the finalization request
         if (req.body.finalize) {
-            // Handle the request to finalize the upload
-            // First, append any remaining chunk data
-            const chunkData = req.body.chunkData; // Assuming there's a 'chunkData' field in your request
+            const chunkData = req.body.chunkData;
             if (chunkData) {
                 fs.appendFile('tempVideo.mp4', chunkData, (err) => {
                     if (err) {
@@ -48,7 +40,6 @@ exports.uploadVideo = async (req, res, next) => {
                         return res.status(500).json({ error: 'Error uploading video chunk' });
                     }
 
-                    // After appending, proceed to finalize by renaming
                     fs.rename('tempVideo.mp4', `uploads/${req.file.filename}`, (err) => {
                         if (err) {
                             console.error('Error finalizing video upload:', err);
@@ -60,7 +51,6 @@ exports.uploadVideo = async (req, res, next) => {
                     });
                 });
             } else {
-                // If there's no remaining chunk data, directly rename the file
                 fs.rename('tempVideo.mp4', `uploads/${req.file.filename}`, (err) => {
                     if (err) {
                         console.error('Error finalizing video upload:', err);
@@ -72,8 +62,7 @@ exports.uploadVideo = async (req, res, next) => {
                 });
             }
         } else {
-            // Handle individual video chunk uploads
-            const chunkData = req.body.chunkData; // Assuming you have a 'chunkData' field in your request
+            const chunkData = req.body.chunkData;
             fs.appendFile('tempVideo.mp4', chunkData, (err) => {
                 if (err) {
                     console.error('Error appending video chunk:', err);
@@ -89,31 +78,30 @@ exports.uploadVideo = async (req, res, next) => {
     }
 };
 
-exports.transcribeAudio = async function(file, mimeType) {
-  let source;
+exports.transcribeAudio = async function (file, mimeType) {
+    let source;
 
-  if (file.startsWith('http')) {
-    source = {
-      url: file,
-    };
-  } else {
-    const audio = fs.readFileSync(file);
+    if (file.startsWith('http')) {
+        source = {
+            url: file,
+        };
+    } else {
+        const audio = fs.readFileSync(file);
 
-    source = {
-      buffer: audio,
-      mimetype: mimeType,
-    };
-  }
+        source = {
+            buffer: audio,
+            mimetype: mimeType,
+        };
+    }
 
-  try {
-    const response = await deepgram.transcription.preRecorded(source, {
-      smart_format: true,
-      model: 'nova',
-    });
+    try {
+        const response = await deepgram.transcription.preRecorded(source, {
+            smart_format: true,
+            model: 'nova',
+        });
 
-    // You can process and return the response as needed
-    return response;
-  } catch (error) {
-    throw error;
-  }
-}
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};
